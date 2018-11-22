@@ -486,8 +486,174 @@ asm_main:
 			jmp		game_loop
 		notLowercaseP:
 
+		; check if piece is capital pawn
+		cmp		BYTE[eax], 'P'
+		jne		notCapitalP
+				; check if on home row
+				mov		ecx, eax
+				sub		ecx, board
+				cmp		ecx, 0x23
+				jg		belowHomeRow_cap
 
-       
+					; make sure not moving more than 2 down
+					mov		edx, ebx
+					sub		edx, board
+					sub		edx, ecx
+					cmp		edx, 36
+					jg		invalidMove ; invalid, stop move now
+
+						; check if moving diagonal down left
+						cmp		edx, 16
+						jne		notDiagonalDownLeft
+							; make sure there's a piece in that slot
+							cmp		BYTE[ebx], ' '
+							je		invalidMove		; invalid, stop move now
+								; execute move
+								mov     cl, BYTE[eax]
+								mov     BYTE[ebx], cl
+								mov     BYTE[eax], ' '
+								jmp		endCapitalP
+						notDiagonalDownLeft:
+
+						; check if moving diagonal down right
+						cmp		edx, 20
+						jne		notDiagonalDownRight
+							; make sure there's a piece in that slot
+							cmp		BYTE[ebx], ' '
+							je		invalidMove		; invalid, stop move now
+								; execute move
+								mov     cl, BYTE[eax]
+								mov     BYTE[ebx], cl
+								mov     BYTE[eax], ' '
+								jmp		endCapitalP
+						notDiagonalDownRight:
+
+						; check if moving exactly two down and make sure pieces aren't in either spot
+						cmp		edx, 36
+						jne		notTwoDown_cap
+							; check first piece
+							mov		ecx, eax
+							add		ecx, 18 ; offset of first piece now in ecx
+							cmp		BYTE[ecx], ' '
+							je		spotOneOpen_cap
+								jmp		invalidMove
+							spotOneOpen_cap:
+								add		ecx, 18 ; offset of second piece now in ecx
+								cmp		BYTE[ecx], ' '
+								je		spotTwoOpen_cap
+									jmp		invalidMove
+							spotTwoOpen_cap:
+								; execute move
+								mov     cl, BYTE[eax]
+								mov     BYTE[ebx], cl
+								mov     BYTE[eax], ' '
+								jmp		endCapitalP
+
+						notTwoDown_cap:
+						
+						; check if moving exactly one down and make sure piece is not in front
+						cmp		edx, 18
+						jne		notOneDown_cap
+							; check first piece
+							mov		ecx, eax
+							add		ecx, 18 ; offset of first piece now in ecx
+							cmp		BYTE[ecx], ' '
+							je		spotOneOpen_b_cap
+								jmp		invalidMove
+							spotOneOpen_b_cap:
+								; execute move
+								mov     cl, BYTE[eax]
+								mov     BYTE[ebx], cl
+								mov     BYTE[eax], ' '
+								jmp		endCapitalP
+						notOneDown_cap:
+
+					jmp		endCapitalP
+
+				belowHomeRow_cap:
+					; prevent moving down 2
+					; get offset of move
+					mov		edx, ebx
+					sub		edx, board
+					sub		edx, ecx
+					cmp		edx, 36
+					je		invalidMove ; invalid, stop move now
+
+					; check if moving exactly one down and make sure piece is not in front
+					cmp		edx, 18
+					jne		notOneUp_b_cap
+						; check first piece
+						mov		ecx, eax
+						add		ecx, 18 ; offset of first piece now in ecx
+						cmp		BYTE[ecx], ' '
+						je		spotOneOpen_c_cap
+							jmp		invalidMove
+						spotOneOpen_c_cap:
+							; check if pawn is at end of board
+							mov		edx, ebx
+							sub		edx, board
+							cmp		edx, 126
+							jl		pawnNotAtEnd_cap
+								; promote pawn to queen
+								mov		BYTE[eax], 'Q'
+								
+							pawnNotAtEnd_cap:
+							; execute move
+							mov     cl, BYTE[eax]
+							mov     BYTE[ebx], cl
+							mov     BYTE[eax], ' '
+							jmp		endCapitalP
+					notOneUp_b_cap:
+
+					; check if moving diagonal down left
+					cmp		edx, 16
+					jne		notDiagonalDownLeft_b
+						; make sure there's a piece in that slot
+						cmp		BYTE[ebx], ' '
+						je		invalidMove		; invalid, stop move now
+							; check if pawn is at end of board
+							mov		edx, ebx
+							sub		edx, board
+							cmp		edx, 126
+							jl		pawnNotAtEnd_b_cap
+								; promote pawn to queen
+								mov		BYTE[eax], 'Q'
+								
+							pawnNotAtEnd_b_cap:
+							; execute move
+							mov     cl, BYTE[eax]
+							mov     BYTE[ebx], cl
+							mov     BYTE[eax], ' '
+							jmp		endCapitalP
+					notDiagonalDownLeft_b:
+
+
+					; check if moving diagonal down right
+					cmp		edx, 20
+					jne		notDiagonalDownRight_b
+						; make sure there's a piece in that slot
+						cmp		BYTE[ebx], ' '
+						je		invalidMove		; invalid, stop move now
+							; check if pawn is at end of board
+							mov		edx, ebx
+							sub		edx, board
+							cmp		edx, 126
+							jl		pawnNotAtEnd_c_cap
+								; promote pawn to queen
+								mov		BYTE[eax], 'Q'
+								
+							pawnNotAtEnd_c_cap:
+							; execute move
+							mov     cl, BYTE[eax]
+							mov     BYTE[ebx], cl
+							mov     BYTE[eax], ' '
+							jmp		endCapitalP
+					notDiagonalDownRight_b:
+
+		endCapitalP:
+			jmp		game_loop
+		notCapitalP:
+
 
 		invalidMove:
             ; just loop back up to grab input again, maybe add some output later (TODO?)
