@@ -683,6 +683,50 @@ asm_main:
 			jmp		game_loop
 		notCapitalP:
 
+		; check if piece is king
+		; case doesn't matter as the moves are synonymous (one any direction)
+		cmp		BYTE[eax], 'k'
+		jne		notLowercaseKing
+		cmp		BYTE[eax], 'k'
+		je		isKing
+		notLowercaseKing:
+		cmp		BYTE[eax], 'K'
+		jne		notKing
+		isKing:
+			; make sure king is moving only one spot in any direction
+			mov		ecx, eax
+			sub		ecx, board ; offset of original location
+			mov		edx, ebx
+			sub		edx, board
+			sub		edx, ecx	; movement differential
+			; define valid moves
+			cmp		edx, -20
+			je		validKing
+			cmp		edx, -18
+			je		validKing
+			cmp		edx, -16
+			je		validKing
+			cmp		edx, -2
+			je		validKing
+			cmp		edx, 2
+			je		validKing
+			cmp		edx, 16
+			je		validKing
+			cmp		edx, 18
+			je		validKing
+			cmp		edx, 20
+			je		validKing
+			jmp		invalidMove		; move not defined, must be invalid
+			validKing:
+				; actually move the king
+				mov     cl, BYTE[eax]
+				mov     BYTE[ebx], cl
+				mov     BYTE[eax], ' '
+				jmp		endKing
+
+		endKing:
+			jmp		game_loop
+		notKing:
 
 		invalidMove:
             ; just loop back up to grab input again, maybe add some output later (TODO?)
