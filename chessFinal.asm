@@ -347,7 +347,37 @@ asm_main:
 							cmp		BYTE[ebx], ' '
 							je		invalidMove		; invalid, stop move now
 						notDiagonalUpRight:
-							jmp		absolutelyValidMove ; all checks passed, motion to move
+
+						; check if moving exactly two up and make sure pieces aren't in either spot
+						cmp		edx, -36
+						jne		notTwoUp
+							; check first piece
+							mov		ecx, eax
+							sub		ecx, 18 ; offset of first piece now in ecx
+							cmp		BYTE[ecx], ' '
+							je		spotOneOpen
+								jmp		invalidMove
+							spotOneOpen:
+								sub		ecx, 18 ; offset of second piece now in ecx
+								cmp		BYTE[ecx], ' '
+								je		spotTwoOpen
+									jmp		invalidMove
+							spotTwoOpen:
+
+						notTwoUp:
+						
+						; check if moving exactly one up and make sure piece is not in front
+						cmp		edx, -18
+						jne		notOneUp
+							; check first piece
+							mov		ecx, eax
+							sub		ecx, 18 ; offset of first piece now in ecx
+							cmp		BYTE[ecx], ' '
+							je		spotOneOpen_b
+								jmp		invalidMove
+							spotOneOpen_b:
+						notOneUp:
+
 					jmp		endLowercaseP
 
 				aboveHomeRow:
@@ -358,7 +388,18 @@ asm_main:
 					sub		edx, ecx
 					cmp		edx, -36
 					je		invalidMove ; invalid, stop move now
-						jmp		absolutelyValidMove ; all checks passed, motion to move
+
+					; check if moving exactly one up and make sure piece is not in front
+					cmp		edx, -18
+					jne		notOneUp_b
+						; check first piece
+						mov		ecx, eax
+						sub		ecx, 18 ; offset of first piece now in ecx
+						cmp		BYTE[ecx], ' '
+						je		spotOneOpen_c
+							jmp		invalidMove
+						spotOneOpen_c:
+					notOneUp_b:
 		
 		endLowercaseP:
 		notLowercaseP:
