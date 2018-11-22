@@ -482,18 +482,11 @@ asm_main:
 							jmp		endLowercaseP
 					notDiagonalUpRight_b:
 
-					
-		
 		endLowercaseP:
 			jmp		game_loop
 		notLowercaseP:
 
 
-        ; put piece 1 in the spot of piece 2
-		absolutelyValidMove:
-			mov     cl, BYTE[eax]
-			mov     BYTE[ebx], cl
-			mov     BYTE[eax], ' '
        
 
 		invalidMove:
