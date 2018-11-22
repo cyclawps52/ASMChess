@@ -422,7 +422,6 @@ asm_main:
 							; check if pawn is at end of board
 							mov		edx, ebx
 							sub		edx, board
-							dump_regs		1
 							cmp		edx, 18
 							jge		pawnNotAtEnd
 								; promote pawn to queen
@@ -445,7 +444,6 @@ asm_main:
 							; check if pawn is at end of board
 							mov		edx, ebx
 							sub		edx, board
-							dump_regs		1
 							cmp		edx, 18
 							jge		pawnNotAtEnd_b
 								; promote pawn to queen
@@ -468,7 +466,6 @@ asm_main:
 							; check if pawn is at end of board
 							mov		edx, ebx
 							sub		edx, board
-							dump_regs		1
 							cmp		edx, 18
 							jge		pawnNotAtEnd_c
 								; promote pawn to queen
