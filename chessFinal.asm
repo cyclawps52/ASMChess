@@ -1,4 +1,4 @@
-;%include "/usr/local/share/csc314/asm_io.inc"
+%include "/usr/local/share/csc314/asm_io.inc"
 
 
 ; the file that stores the initial state
@@ -316,11 +316,59 @@ asm_main:
 		firstLowerSecondCapital:
 		firstCapitalSecondLowercase:
 
+		; check if piece is lowercase pawn
+		cmp		BYTE[eax], 'p'
+		jne		notLowercaseP
+				; check if on home row
+				mov		ecx, eax
+				sub		ecx, board
+				cmp		ecx, 0x6E
+				jl		aboveHomeRow
+
+					; make sure not moving more than 2 up
+					mov		edx, ebx
+					sub		edx, board
+					sub		edx, ecx
+					cmp		edx, -36
+					jl		invalidMove ; invalid, stop move now
+
+						; check if moving diagonal up left
+						cmp		edx, -20
+						jne		notDiagonalUpLeft
+							; make sure there's a piece in that slot
+							cmp		BYTE[ebx], ' '
+							je		invalidMove		; invalid, stop move now
+						notDiagonalUpLeft:
+
+						; check if moving diagonal up right
+						cmp		edx, -16
+						jne		notDiagonalUpRight
+							; make sure there's a piece in that slot
+							cmp		BYTE[ebx], ' '
+							je		invalidMove		; invalid, stop move now
+						notDiagonalUpRight:
+							jmp		absolutelyValidMove ; all checks passed, motion to move
+					jmp		endLowercaseP
+
+				aboveHomeRow:
+					; prevent moving up 2
+					; get offset of move
+					mov		edx, ebx
+					sub		edx, board
+					sub		edx, ecx
+					cmp		edx, -36
+					je		invalidMove ; invalid, stop move now
+						jmp		absolutelyValidMove ; all checks passed, motion to move
+		
+		endLowercaseP:
+		notLowercaseP:
+
 
         ; put piece 1 in the spot of piece 2
-        mov     cl, BYTE[eax]
-        mov     BYTE[ebx], cl
-        mov     BYTE[eax], ' '
+		absolutelyValidMove:
+			mov     cl, BYTE[eax]
+			mov     BYTE[ebx], cl
+			mov     BYTE[eax], ' '
        
 
 		invalidMove:
