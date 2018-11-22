@@ -288,13 +288,34 @@ asm_main:
 
         endChecking:
 
-        ; TODO: Validate if a piece exists in spot eax
+        ; Validate if a piece exists in spot eax
+		cmp		BYTE[eax], ' '
+		je		invalidMove ; piece is a space character, cannot move
 
-        ; TODO: determine which piece exists in spot eax
+        ; see if you are overwriting one of your own pieces
+		; this is a very ugly check but it works
+		cmp		BYTE[eax], 0x5A
+		jg		firstLowercase
+		jmp		firstCapital
+		firstLowercase:
+			cmp		BYTE[ebx], 0x5A
+			jg		bothLowercase
+			jmp		firstLowerSecondCapital
+		firstCapital:
+			cmp		BYTE[ebx], 0x5A
+			jg		firstCapitalSecondLowercase
+			jmp		bothCapital
+		bothLowercase:
+			jmp		invalidMove
+		bothCapital:
+			; check if second piece is a space (override 0x20 being capital)
+			cmp		BYTE[ebx], 0x20
+			je		continueMove
+				jmp		invalidMove
+			continueMove:
+		firstLowerSecondCapital:
+		firstCapitalSecondLowercase:
 
-        ; TODO: determine if there is a piece in spot ebx
-
-        ; TODO: determine if piece eax can move to spot ebx given whether or not a piece exists in ebx
 
         ; put piece 1 in the spot of piece 2
         mov     cl, BYTE[eax]
