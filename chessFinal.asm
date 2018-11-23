@@ -39,6 +39,8 @@ segment .data
 	move3	db	0
 	move4	db	0
 
+	invalidMoveString	db		"The last move entered was invalid.",13,10,"Press [ENTER] to continue.   ",0
+
 segment .bss
 
 	; this array stores the current rendered gameboard (HxW)
@@ -1224,10 +1226,8 @@ asm_main:
 				mov     BYTE[eax], ' '
 				jmp		endQueen
 
-		; no idea what the piece is trying to do
-		jmp		invalidMove
-
-		;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+			; no idea what the piece is trying to do
+			jmp		invalidMove
 
 			movingDown_c:
 			; check if moving straight right
@@ -1325,45 +1325,43 @@ asm_main:
 				mov     BYTE[eax], ' '
 				jmp		endQueen
 
-		notMovingDownRight:
-		; check if moving diagonal down left
-		; by seeing if differential is multiple of 16
-		mov		ecx, eax
-		sub		ecx, board ; offset of original location
-		mov		edx, ebx
-		sub		edx, board
-		sub		edx, ecx	; movement differential
-		mov		esi, edx
-		mov		edi, 7
-		topLoop_z:
-		cmp		edi, 0
-		je		invalidMove		; 0 not reached with multiple of 16
-			sub		esi, 16
-			cmp		esi, 0
-			je		validMove_h
-			dec		edi
-			jmp		topLoop_z
-		validMove_h:
-		; check all pieces in current path
-		mov		edi, edx	; edi now stores the targeted path
-		mov		esi, 16
-		mov		edx, eax
-		topLoop_aa:
-		cmp		esi, edi
-		je		validPath_n
-		add		edx, 16
-		add		esi, 16
-		cmp		BYTE[edx], ' '
-		jne		invalidMove
-		jmp		topLoop_aa
-		validPath_n:
-			; actually move the piece
-			mov     cl, BYTE[eax]
-			mov     BYTE[ebx], cl
-			mov     BYTE[eax], ' '
-			jmp		endQueen
-
-		;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+			notMovingDownRight:
+			; check if moving diagonal down left
+			; by seeing if differential is multiple of 16
+			mov		ecx, eax
+			sub		ecx, board ; offset of original location
+			mov		edx, ebx
+			sub		edx, board
+			sub		edx, ecx	; movement differential
+			mov		esi, edx
+			mov		edi, 7
+			topLoop_z:
+			cmp		edi, 0
+			je		invalidMove		; 0 not reached with multiple of 16
+				sub		esi, 16
+				cmp		esi, 0
+				je		validMove_h
+				dec		edi
+				jmp		topLoop_z
+			validMove_h:
+			; check all pieces in current path
+			mov		edi, edx	; edi now stores the targeted path
+			mov		esi, 16
+			mov		edx, eax
+			topLoop_aa:
+			cmp		esi, edi
+			je		validPath_n
+			add		edx, 16
+			add		esi, 16
+			cmp		BYTE[edx], ' '
+			jne		invalidMove
+			jmp		topLoop_aa
+			validPath_n:
+				; actually move the piece
+				mov     cl, BYTE[eax]
+				mov     BYTE[ebx], cl
+				mov     BYTE[eax], ' '
+				jmp		endQueen
 
 		endQueen:
 			jmp		game_loop
@@ -1371,6 +1369,10 @@ asm_main:
 
 		invalidMove:
             ; just loop back up to grab input again, maybe add some output later (TODO:?)
+			push	invalidMoveString
+			call	printf
+			add		esp, 4
+			call	getchar
 			jmp		game_loop
 
 	game_loop_end:
@@ -1481,7 +1483,6 @@ render:
 	push	clear_screen_cmd
 	call	system
 	add		esp, 4
-
 
 	push	last_move_str
 	call	printf
