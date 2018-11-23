@@ -50,6 +50,12 @@ segment .data
 	kingOverwrittenStringC	db	"The [CAPITAL KING] has been defeated!",13,10,"Congratulations [LOWERCASE] player!",13,10,0
 	kingOverwrittenStringL	db	"The [LOWERCASE KING] has been defeated!",13,10,"Congratulations [CAPITAL] player!",13,10,0
 
+	; current turn
+	currentPlayer	db	'c'
+	waitingPlayer	db	'l'
+	currentPlayerCapital		db	"It is currently [CAPITAL] player's turn.",13,10,0
+	currentPlayerLowercase		db	"It is currently [LOWERCASE] player's turn.",13,10,0
+
 segment .bss
 
 	; this array stores the current rendered gameboard (HxW)
@@ -91,12 +97,31 @@ asm_main:
 		mov		BYTE[move4], 0
 		call	render
 		
-		; check if king was overwritten and display message accordingly
-		cmp		BYTE[kingFlag], 1
-		jne		continueGame
+		; display who's turn it is
+		push	line
+		call	printf
+		add		esp, 4
+		cmp		BYTE[currentPlayer], 'c'
+		jne		lowercaseMove
+			push	currentPlayerCapital
+			call	printf
+			add		esp, 4
 			push	line
 			call	printf
 			add		esp, 4
+			jmp		endPlayerDisplay
+		lowercaseMove:
+			push	currentPlayerLowercase
+			call	printf
+			add		esp, 4
+			push	line
+			call	printf
+			add		esp, 4
+		endPlayerDisplay:
+
+		; check if king was overwritten and display message accordingly
+		cmp		BYTE[kingFlag], 1
+		jne		continueGame
 			push	kingOverwrittenStringC
 			call	printf
 			add		esp, 4
@@ -123,15 +148,99 @@ asm_main:
 		call	getchar
 		mov		BYTE[move1], al
 		call	render
+			; display who's turn it is
+			push	line
+			call	printf
+			add		esp, 4
+			cmp		BYTE[currentPlayer], 'c'
+			jne		lowercaseMove2
+				push	currentPlayerCapital
+				call	printf
+				add		esp, 4
+				push	line
+				call	printf
+				add		esp, 4
+				jmp		endPlayerDisplay2
+			lowercaseMove2:
+				push	currentPlayerLowercase
+				call	printf
+				add		esp, 4
+				push	line
+				call	printf
+				add		esp, 4
+			endPlayerDisplay2:
 		call	getchar
 		mov		BYTE[move2], al
 		call	render
+			; display who's turn it is
+			push	line
+			call	printf
+			add		esp, 4
+			cmp		BYTE[currentPlayer], 'c'
+			jne		lowercaseMove3
+				push	currentPlayerCapital
+				call	printf
+				add		esp, 4
+				push	line
+				call	printf
+				add		esp, 4
+				jmp		endPlayerDisplay3
+			lowercaseMove3:
+				push	currentPlayerLowercase
+				call	printf
+				add		esp, 4
+				push	line
+				call	printf
+				add		esp, 4
+			endPlayerDisplay3:
 		call	getchar
 		mov		BYTE[move3], al
 		call	render
+			; display who's turn it is
+			push	line
+			call	printf
+			add		esp, 4
+			cmp		BYTE[currentPlayer], 'c'
+			jne		lowercaseMove4
+				push	currentPlayerCapital
+				call	printf
+				add		esp, 4
+				push	line
+				call	printf
+				add		esp, 4
+				jmp		endPlayerDisplay4
+			lowercaseMove4:
+				push	currentPlayerLowercase
+				call	printf
+				add		esp, 4
+				push	line
+				call	printf
+				add		esp, 4
+			endPlayerDisplay4:
 		call	getchar
 		mov		BYTE[move4], al
 		call	render
+			; display who's turn it is
+			push	line
+			call	printf
+			add		esp, 4
+			cmp		BYTE[currentPlayer], 'c'
+			jne		lowercaseMove5
+				push	currentPlayerCapital
+				call	printf
+				add		esp, 4
+				push	line
+				call	printf
+				add		esp, 4
+				jmp		endPlayerDisplay5
+			lowercaseMove5:
+				push	currentPlayerLowercase
+				call	printf
+				add		esp, 4
+				push	line
+				call	printf
+				add		esp, 4
+			endPlayerDisplay5:
 
 		; see if you need to quit
 		cmp		BYTE[move1], 'q'
@@ -355,6 +464,61 @@ asm_main:
 		firstLowerSecondCapital:
 		firstCapitalSecondLowercase:
 
+		; check if correct player is moving
+		cmp		BYTE[currentPlayer], 'c'
+		jne		lowercaseTurn
+			
+			; capital turn
+			cmp		BYTE[eax], 'P'
+			jne		chain1
+			je		validTurn
+			chain1:
+			cmp		BYTE[eax], 'R'
+			jne		chain2
+			je		validTurn
+			chain2:
+			cmp		BYTE[eax], 'N'
+			jne		chain3
+			je		validTurn
+			chain3:
+			cmp		BYTE[eax], 'B'
+			jne		chain4
+			je		validTurn
+			chain4:
+			cmp		BYTE[eax], 'Q'
+			jne		chain5
+			je		validTurn
+			chain5:
+			cmp		BYTE[eax], 'K'
+			jne		invalidMove
+			je		validTurn
+
+		lowercaseTurn:
+			cmp		BYTE[eax], 'p'
+			jne		chain1b
+			je		validTurn
+			chain1b:
+			cmp		BYTE[eax], 'r'
+			jne		chain2b
+			je		validTurn
+			chain2b:
+			cmp		BYTE[eax], 'n'
+			jne		chain3b
+			je		validTurn
+			chain3b:
+			cmp		BYTE[eax], 'b'
+			jne		chain4b
+			je		validTurn
+			chain4b:
+			cmp		BYTE[eax], 'q'
+			jne		chain5b
+			je		validTurn
+			chain5b:
+			cmp		BYTE[eax], 'k'
+			jne		invalidMove
+			je		validTurn
+			
+		validTurn:
 		; check if ebx is a king
 		cmp		BYTE[ebx], 'k'
 		jne		notOverwriteLowercaseKing
@@ -529,6 +693,10 @@ asm_main:
 					notDiagonalUpRight_b:
 
 		endLowercaseP:
+			mov		al, BYTE[currentPlayer]
+			mov		bl, BYTE[waitingPlayer]
+			xchg	BYTE[waitingPlayer], al
+			xchg	BYTE[currentPlayer], bl
 			jmp		game_loop
 		notLowercaseP:
 
@@ -697,6 +865,10 @@ asm_main:
 					notDiagonalDownRight_b:
 
 		endCapitalP:
+			mov		al, BYTE[currentPlayer]
+			mov		bl, BYTE[waitingPlayer]
+			xchg	BYTE[waitingPlayer], al
+			xchg	BYTE[currentPlayer], bl
 			jmp		game_loop
 		notCapitalP:
 
@@ -742,6 +914,10 @@ asm_main:
 				jmp		endKing
 
 		endKing:
+			mov		al, BYTE[currentPlayer]
+			mov		bl, BYTE[waitingPlayer]
+			xchg	BYTE[waitingPlayer], al
+			xchg	BYTE[currentPlayer], bl
 			jmp		game_loop
 		notKing:
 
@@ -873,6 +1049,10 @@ asm_main:
 				mov     BYTE[eax], ' '
 				jmp		endRook
 		endRook:
+			mov		al, BYTE[currentPlayer]
+			mov		bl, BYTE[waitingPlayer]
+			xchg	BYTE[waitingPlayer], al
+			xchg	BYTE[currentPlayer], bl
 			jmp		game_loop
 		notRook:
 
@@ -917,6 +1097,10 @@ asm_main:
 				mov     BYTE[eax], ' '
 				jmp		endKnight
 		endKnight:
+			mov		al, BYTE[currentPlayer]
+			mov		bl, BYTE[waitingPlayer]
+			xchg	BYTE[waitingPlayer], al
+			xchg	BYTE[currentPlayer], bl
 			jmp		game_loop
 		notKnight:
 
@@ -1085,6 +1269,10 @@ asm_main:
 				jmp		endBishop
 
 		endBishop:
+			mov		al, BYTE[currentPlayer]
+			mov		bl, BYTE[waitingPlayer]
+			xchg	BYTE[waitingPlayer], al
+			xchg	BYTE[currentPlayer], bl
 			jmp		game_loop
 		notBishop:
 
@@ -1379,14 +1567,15 @@ asm_main:
 				jmp		endQueen
 
 		endQueen:
+			mov		al, BYTE[currentPlayer]
+			mov		bl, BYTE[waitingPlayer]
+			xchg	BYTE[waitingPlayer], al
+			xchg	BYTE[currentPlayer], bl
 			jmp		game_loop
 		notQueen:
 
 		invalidMove:
 			mov		BYTE[kingFlag], 0
-			push	line
-			call	printf
-			add		esp, 4
 			push	invalidMoveString1
 			call	printf
 			add		esp, 4
