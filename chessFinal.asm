@@ -39,10 +39,16 @@ segment .data
 	move3	db	0
 	move4	db	0
 
-	; invalid move display
 	line		db		"-------------------------------------------",13,10,0
+
+	; invalid move display
 	invalidMoveString1	db		"The last move (",0
 	invalidMoveString2	db		") entered was invalid.",13,10,"Press [ENTER] to continue.",13,10,0
+
+	; king overwritten display
+	kingFlag	db	0
+	kingOverwrittenStringC	db	"The [CAPITAL KING] has been defeated!",13,10,"Congratulations [LOWERCASE] player!",13,10,0
+	kingOverwrittenStringL	db	"The [LOWERCASE KING] has been defeated!",13,10,"Congratulations [CAPITAL] player!",13,10,0
 
 segment .bss
 
@@ -85,6 +91,34 @@ asm_main:
 		mov		BYTE[move4], 0
 		call	render
 		
+		; check if king was overwritten and display message accordingly
+		cmp		BYTE[kingFlag], 1
+		jne		continueGame
+			push	line
+			call	printf
+			add		esp, 4
+			push	kingOverwrittenStringC
+			call	printf
+			add		esp, 4
+			push	line
+			call	printf
+			add		esp, 4
+			jmp		game_loop_end
+		continueGame:
+		cmp		BYTE[kingFlag], 2
+		jne		continueGame2
+			push	line
+			call	printf
+			add		esp, 4
+			push	kingOverwrittenStringL
+			call	printf
+			add		esp, 4
+			push	line
+			call	printf
+			add		esp, 4
+			jmp		game_loop_end
+		continueGame2:
+
 		; get move from the user
 		call	getchar
 		mov		BYTE[move1], al
@@ -320,6 +354,16 @@ asm_main:
 			continueMove:
 		firstLowerSecondCapital:
 		firstCapitalSecondLowercase:
+
+		; check if ebx is a king
+		cmp		BYTE[ebx], 'k'
+		jne		notOverwriteLowercaseKing
+			mov		BYTE[kingFlag], 2
+		notOverwriteLowercaseKing:
+		cmp		BYTE[ebx], 'K'
+		jne		notOverWriteCapitalKing
+			mov		BYTE[kingFlag], 1
+		notOverWriteCapitalKing:
 
 		; check if piece is lowercase pawn
 		cmp		BYTE[eax], 'p'
@@ -1339,6 +1383,7 @@ asm_main:
 		notQueen:
 
 		invalidMove:
+			mov		BYTE[kingFlag], 0
 			push	line
 			call	printf
 			add		esp, 4
