@@ -28,10 +28,14 @@ segment .data
 	clear_screen_cmd	db "clear",0
 
 	; things the program will print
-	help_str			db 13,10,"Controls: ", \
-							"Type quit to end game", \
-							13,10,10,0
-	last_move_str		db	"Move input: ",0
+	help_str			db  "Instructions: ",13,10, \
+                            "Type four letters to make a move token.",13,10, \
+                            "A move token moving [a1] to [a2] would be [a1a2].",13,10, \
+							"Type quit (instead of a four move token) to end the game early.",13,10, \
+                            "A pawn will promote to a queen upon hitting the end of the board.",13,10, \
+                            "If either king piece is killed by the enemy, the game will quit.", \
+							13,10,0
+	last_move_str		db	9,9,"        Move input: ",0
 
 	; variables to hold the move characters
 	move1	db	0
@@ -39,11 +43,12 @@ segment .data
 	move3	db	0
 	move4	db	0
 
-	line		db		"-------------------------------------------",13,10,0
+	line		db		"------------------------------------------------------------------",13,10,0
+    renderLine  db      13,10,"------------------------------------------------------------------",13,10,0
 
 	; invalid move display
-	invalidMoveString1	db		"The last move (",0
-	invalidMoveString2	db		") entered was invalid.",13,10,"Press [ENTER] to continue.",13,10,0
+	invalidMoveString1	db		"The last move entered (",0
+	invalidMoveString2	db		") was invalid.",13,10,"Press [ENTER] to continue.",13,10,0
 
 	; king overwritten display
 	kingFlag	db	0
@@ -53,8 +58,8 @@ segment .data
 	; current turn
 	currentPlayer	db	'c'
 	waitingPlayer	db	'l'
-	currentPlayerCapital		db	"It is currently [CAPITAL] player's turn.",13,10,0
-	currentPlayerLowercase		db	"It is currently [LOWERCASE] player's turn.",13,10,0
+	currentPlayerCapital		db	9,"     It is currently [CAPITAL] player's turn.",13,10,0
+	currentPlayerLowercase		db	9,"    It is currently [LOWERCASE] player's turn.",13,10,0
 
 segment .bss
 
@@ -1725,10 +1730,18 @@ render:
 	call	putchar
 	add		esp, 4
 
+    push    renderLine
+    call    printf
+    add     esp, 4
+
 	; print the help information
 	push	help_str
 	call	printf
 	add		esp, 4
+
+    push    line
+    call    printf
+    add     esp, 4
 
 	; outside loop by height
 	; i.e. for(c=0; c<height; c++)
@@ -1736,6 +1749,15 @@ render:
 	y_loop_start:
 	cmp		DWORD [ebp-4], HEIGHT
 	je		y_loop_end
+    push    9
+    call    putchar
+    add     esp, 4
+    push    9
+    call    putchar
+    add     esp, 4
+    push    9
+    call    putchar
+    add     esp, 4
 
 		; inside loop by width
 		; i.e. for(c=0; c<width; c++)
