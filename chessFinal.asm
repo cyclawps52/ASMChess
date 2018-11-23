@@ -859,10 +859,54 @@ asm_main:
 			jmp		game_loop
 		notRook:
 
+		; check if piece is knight
+		; case doesn't matter as the moves are synonymous
+		cmp		BYTE[eax], 'n'
+		jne		notLowercaseKnight
+		cmp		BYTE[eax], 'n'
+		je		isKnight
+		notLowercaseKnight:
+		cmp		BYTE[eax], 'N'
+		jne		notKnight
+		isKnight:
+			; make sure knight is moving as defined
+			mov		ecx, eax
+			sub		ecx, board ; offset of original location
+			mov		edx, ebx
+			sub		edx, board
+			sub		edx, ecx	; movement differential
+			; define valid moves
+			cmp		edx, -38
+			je		validKnight
+			cmp		edx, -34
+			je		validKnight
+			cmp		edx, -22
+			je		validKnight
+			cmp		edx, -14
+			je		validKnight
+			cmp		edx, 14
+			je		validKnight
+			cmp		edx, 22
+			je		validKnight
+			cmp		edx, 34
+			je		validKnight
+			cmp		edx, 38
+			je		validKnight
+			jmp		invalidMove		; move not defined, must be invalid
+			validKnight:
+				; actually move the knight
+				mov     cl, BYTE[eax]
+				mov     BYTE[ebx], cl
+				mov     BYTE[eax], ' '
+				jmp		endKnight
+		endKnight:
+			jmp		game_loop
+		notKnight:
+
 		invalidMove:
             ; just loop back up to grab input again, maybe add some output later (TODO:?)
+			jmp		game_loop
 
-	jmp		game_loop
 	game_loop_end:
 
 	; restore old terminal functionality
