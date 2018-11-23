@@ -31,7 +31,7 @@ segment .data
 	help_str			db  "Instructions: ",13,10, \
                             "Type four letters to make a move token.",13,10, \
                             "A move token moving [a1] to [a2] would be [a1a2].",13,10, \
-							"Type quit (instead of a four move token) to end the game early.",13,10, \
+							"Type [quit] (instead of a move token) to end the game early.",13,10, \
                             "A pawn will promote to a queen upon hitting the end of the board.",13,10, \
                             "If either king piece is killed by the enemy, the game will quit.", \
 							13,10,0
