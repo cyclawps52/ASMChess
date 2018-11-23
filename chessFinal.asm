@@ -728,8 +728,139 @@ asm_main:
 			jmp		game_loop
 		notKing:
 
+		; check if piece is rook
+		; case doesn't matter as the moves are synonymous
+		cmp		BYTE[eax], 'r'
+		jne		notLowercaseRook
+		cmp		BYTE[eax], 'r'
+		je		isRook
+		notLowercaseRook:
+		cmp		BYTE[eax], 'R'
+		jne		notRook
+		isRook:
+			; check if moving horizontally or vertically
+			mov		ecx, eax
+			sub		ecx, board ; offset of original location
+			mov		edx, ebx
+			sub		edx, board
+			sub		edx, ecx	; movement differential
+
+			mov		edi, edx	; backup of differential
+
+			mov		esi, 7
+			topLoop:
+			cmp		esi, 0
+			je		endLoop
+				add		edx, 18
+				cmp		edx, 0
+				je		vertical	
+			dec 	esi
+			jmp		topLoop
+			endLoop:
+
+			mov		esi, 7
+			mov		edx, edi
+			topLoop2:
+			cmp		esi, 0
+			je		endLoop2
+				sub		edx, 18
+				cmp		edx, 0
+				je		vertical
+			dec		esi
+			jmp		topLoop2
+			endLoop2:
+
+			horizontal:
+				; reget the movement differential
+				mov		ecx, eax
+				sub		ecx, board ; offset of original location
+				mov		edx, ebx
+				sub		edx, board
+				sub		edx, ecx	; movement differential
+				cmp		edx, -18
+				jl		invalidMove
+				cmp		edx, 18
+				jg		invalidMove
+				
+				; check each piece in horizontal path
+				mov		edi, edx	; edi now stores the targeted path
+				cmp		edi, 0
+				jg		movingRight
+					; movingLeft
+					mov		esi, -2
+					mov		edx, eax
+					topLoop_b:
+					cmp		esi, edi
+					je		validPath
+						sub		edx, 2
+						sub		esi, 2
+						cmp		BYTE[edx], ' '
+						jne		invalidMove
+						jmp		topLoop_b
+				movingRight:
+					mov		esi, 2
+					mov		edx, eax
+					topLoop_c:
+					cmp		esi, edi
+					je		validPath
+						add		edx, 2
+						add		esi, 2
+						cmp		BYTE[edx], ' '
+						jne		invalidMove
+						jmp		topLoop_c
+				validPath:
+				; actually move the rook
+				mov     cl, BYTE[eax]
+				mov     BYTE[ebx], cl
+				mov     BYTE[eax], ' '
+				jmp		endRook
+			vertical:
+				; reget the movement differential
+				mov		ecx, eax
+				sub		ecx, board ; offset of original location
+				mov		edx, ebx
+				sub		edx, board
+				sub		edx, ecx	; movement differential
+
+				; check each piece in vertical path
+				mov		edi, edx	; edi now stores the targeted path
+				cmp		edi, 0
+				jg		movingDown
+					; movingUp
+					mov		esi, -18
+					mov		edx, eax
+					topLoop_d:
+					cmp		esi, edi
+					je		validPath_b
+						sub		edx, 18
+						sub		esi, 18
+						cmp		BYTE[edx], ' '
+						jne		invalidMove
+						jmp		topLoop_d
+				movingDown:
+					mov		esi, 18
+					mov		edx, eax
+					topLoop_e:
+					cmp		esi, edi
+					je		validPath_b
+						add		edx, 18
+						add		esi, 18
+						cmp		BYTE[edx], ' '
+						jne		invalidMove
+						jmp		topLoop_e
+
+				validPath_b:
+				; actually move the rook
+				mov     cl, BYTE[eax]
+				mov     BYTE[ebx], cl
+				mov     BYTE[eax], ' '
+				jmp		endRook
+		endRook:
+			jmp		game_loop
+		notRook:
+
 		invalidMove:
-            ; just loop back up to grab input again, maybe add some output later (TODO?)
+            ; just loop back up to grab input again, maybe add some output later (TODO:?)
 
 	jmp		game_loop
 	game_loop_end:
