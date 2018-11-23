@@ -1227,7 +1227,143 @@ asm_main:
 		; no idea what the piece is trying to do
 		jmp		invalidMove
 
+		;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 			movingDown_c:
+			; check if moving straight right
+			cmp		edx, 14
+			jg		notMovingStraightRight
+				; moving straight right
+				mov		edi, edx	; edi now stores the targeted path
+				mov		esi, 2
+				mov		edx, eax
+				topLoop_u:
+				cmp		esi, edi
+				je		validPath_k
+					sub		edx, 2
+					sub		esi, 2
+					cmp		BYTE[edx], ' '
+					jne		invalidMove
+					jmp		topLoop_u
+				
+				validPath_k:
+					; actually move the queen
+					mov     cl, BYTE[eax]
+					mov     BYTE[ebx], cl
+					mov     BYTE[eax], ' '
+					jmp		endQueen
+
+			notMovingStraightRight:
+			; check if moving straight down
+			; check if differential is multiple of 18
+			mov		edi, edx	; backup of differential
+			mov		esi, 7
+			topLoop_v:
+			cmp		esi, 0
+			je		endLoop4
+				sub		edx, 18
+				cmp		edx, 0
+				je		vertical_c
+			dec 	esi
+			jmp		topLoop_v
+			endLoop4:
+			jmp		notMovingVerticalDown
+
+			vertical_c:
+				mov		edx, edi	; restore differential backup
+				; check each piece in vertical path
+				mov		edi, edx	; edi now stores the targeted path
+				mov		esi, 18
+				mov		edx, eax
+				topLoop_w:
+				cmp		esi, edi
+				je		validPath_l
+					add		edx, 18
+					add		esi, 18
+					cmp		BYTE[edx], ' '
+					jne		invalidMove
+					jmp		topLoop_w
+
+				validPath_l:
+				; actually move the queen
+					mov     cl, BYTE[eax]
+					mov     BYTE[ebx], cl
+					mov     BYTE[eax], ' '
+					jmp		endQueen
+
+			notMovingVerticalDown:
+			; check if moving diagonal down right
+			; by seeing if differential is multiple of 20
+			mov		edx, edi	; replace backup of differential
+			mov		esi, edx
+			mov		edi, 7
+			topLoop_x:
+			cmp		edi, 0
+			je		notMovingDownRight		; 0 not reached with multiple of 20
+				sub		esi, 20
+				cmp		esi, 0
+				je		validMove_g
+				dec		edi
+				jmp		topLoop_x
+			validMove_g:
+				; check all pieces in current path
+				mov		edi, edx	; edi now stores the targeted path
+				mov		esi, 20
+				mov		edx, eax
+			topLoop_y:
+				cmp		esi, edi
+				je		validPath_m
+				add		edx, 20
+				add		esi, 20
+				cmp		BYTE[edx], ' '
+				jne		invalidMove
+				jmp		topLoop_y
+			validPath_m:
+				; actually move the piece
+				mov     cl, BYTE[eax]
+				mov     BYTE[ebx], cl
+				mov     BYTE[eax], ' '
+				jmp		endQueen
+
+		notMovingDownRight:
+		; check if moving diagonal down left
+		; by seeing if differential is multiple of 16
+		mov		ecx, eax
+		sub		ecx, board ; offset of original location
+		mov		edx, ebx
+		sub		edx, board
+		sub		edx, ecx	; movement differential
+		mov		esi, edx
+		mov		edi, 7
+		topLoop_z:
+		cmp		edi, 0
+		je		invalidMove		; 0 not reached with multiple of 16
+			sub		esi, 16
+			cmp		esi, 0
+			je		validMove_h
+			dec		edi
+			jmp		topLoop_z
+		validMove_h:
+		; check all pieces in current path
+		mov		edi, edx	; edi now stores the targeted path
+		mov		esi, 16
+		mov		edx, eax
+		topLoop_aa:
+		cmp		esi, edi
+		je		validPath_n
+		add		edx, 16
+		add		esi, 16
+		cmp		BYTE[edx], ' '
+		jne		invalidMove
+		jmp		topLoop_aa
+		validPath_n:
+			; actually move the piece
+			mov     cl, BYTE[eax]
+			mov     BYTE[ebx], cl
+			mov     BYTE[eax], ' '
+			jmp		endQueen
+
+		;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 		endQueen:
 			jmp		game_loop
