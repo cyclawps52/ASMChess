@@ -696,6 +696,7 @@ asm_main:
 							mov     BYTE[eax], ' '
 							jmp		endLowercaseP
 					notDiagonalUpRight_b:
+					jmp		invalidMove		; trying to move backwards
 
 		endLowercaseP:
 			mov		al, BYTE[currentPlayer]
@@ -868,6 +869,7 @@ asm_main:
 							mov     BYTE[eax], ' '
 							jmp		endCapitalP
 					notDiagonalDownRight_b:
+					jmp		invalidMove		; pawn trying to move backwards
 
 		endCapitalP:
 			mov		al, BYTE[currentPlayer]
