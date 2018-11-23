@@ -903,6 +903,174 @@ asm_main:
 			jmp		game_loop
 		notKnight:
 
+		; check if piece is bishop
+		; case doesn't matter as the moves are synonymous
+		cmp		BYTE[eax], 'b'
+		jne		notLowercaseBishop
+		cmp		BYTE[eax], 'b'
+		je		isBishop
+		notLowercaseBishop:
+		cmp		BYTE[eax], 'B'
+		jne		notBishop
+		isBishop:
+			mov		ecx, eax
+			sub		ecx, board ; offset of original location
+			mov		edx, ebx
+			sub		edx, board
+			sub		edx, ecx	; movement differential
+
+			; check if moving up or down
+			cmp		edx, 0
+			jg		movingDown_b
+				; moving up
+				; check if moving left or right based on characters inputted
+				mov		cl, BYTE[move1]
+				cmp		cl, BYTE[move3]
+				jle		movingUpRight
+					; moving up left
+					; make sure differential is multiple of 20
+					mov		esi, edx
+					mov		edi, 7
+					topLoop_h:
+					cmp		edi, 0
+					je		invalidMove		; 0 not reached with multiple of 20
+						add		esi, 20
+						cmp		esi, 0
+						je		validMove_b
+						dec		edi
+						jmp		topLoop_h
+					validMove_b:
+					; check all pieces in current path
+					mov		edi, edx	; edi now stores the targeted path
+					mov		esi, -20
+					mov		edx, eax
+					topLoop_i:
+					cmp		esi, edi
+					je		validPath_d
+					sub		edx, 20
+					sub		esi, 20
+					cmp		BYTE[edx], ' '
+					jne		invalidMove
+					jmp		topLoop_i
+				validPath_d:
+
+				; actually move the piece
+				mov     cl, BYTE[eax]
+				mov     BYTE[ebx], cl
+				mov     BYTE[eax], ' '
+				jmp		endBishop
+
+				movingUpRight:
+					; make sure differential is multiple of 16
+					mov		esi, edx	; copy differential to esi
+					mov		edi, 7
+					topLoop_f:
+					cmp		edi, 0
+					je		invalidMove		; 0 not reached with multiple of 16
+						add		esi, 16
+						cmp		esi, 0
+						je		validMove
+						dec		edi
+						jmp		topLoop_f
+					validMove:
+
+					; check all pieces in current path
+					mov		edi, edx	; edi now stores the targeted path
+					mov		esi, -16
+					mov		edx, eax
+					topLoop_g:
+					cmp		esi, edi
+					je		validPath_c
+						sub		edx, 16
+						sub 	esi, 16
+						cmp		BYTE[edx], ' '
+						jne		invalidMove
+						jmp		topLoop_g
+					validPath_c:
+
+					; actually move the piece
+					mov     cl, BYTE[eax]
+					mov     BYTE[ebx], cl
+					mov     BYTE[eax], ' '
+					jmp		endBishop
+				
+
+			movingDown_b:
+				; check if moving left or right based on characters entered
+				mov		cl, BYTE[move1]
+				cmp		cl, BYTE[move3]
+				jle		movingDownRight
+					; moving down left
+					; make sure differential is multiple of 16
+					mov		esi, edx	; copy differential to esi
+					mov		edi, 7
+					topLoop_j:
+					cmp		edi, 0
+					je		invalidMove		; 0 not reached with multiple of 16
+						sub		esi, 16
+						cmp		esi, 0
+						je		validMove_c
+						dec		edi
+						jmp		topLoop_j
+					validMove_c:
+
+					; check all pieces in current path
+					mov		edi, edx	; edi now stores the targeted path
+					mov		esi, 16
+					mov		edx, eax
+					topLoop_k:
+					cmp		esi, edi
+					je		validPath_e
+						add		edx, 16
+						add 	esi, 16
+						cmp		BYTE[edx], ' '
+						jne		invalidMove
+						jmp		topLoop_k
+					validPath_e:
+
+					; actually move the piece
+					mov     cl, BYTE[eax]
+					mov     BYTE[ebx], cl
+					mov     BYTE[eax], ' '
+					jmp		endBishop
+
+				movingDownRight:
+					; make sure differential is multiple of 20
+					mov		esi, edx
+					mov		edi, 7
+					topLoop_l:
+					cmp		edi, 0
+					je		invalidMove		; 0 not reached with multiple of 20
+						sub		esi, 20
+						cmp		esi, 0
+						je		validMove_d
+						dec		edi
+						jmp		topLoop_l
+					validMove_d:
+					; check all pieces in current path
+					mov		edi, edx	; edi now stores the targeted path
+					mov		esi, 20
+					mov		edx, eax
+					topLoop_m:
+					cmp		esi, edi
+					je		validPath_f
+					add		edx, 20
+					add		esi, 20
+					cmp		BYTE[edx], ' '
+					jne		invalidMove
+					jmp		topLoop_m
+				validPath_f:
+
+				; actually move the piece
+				mov     cl, BYTE[eax]
+				mov     BYTE[ebx], cl
+				mov     BYTE[eax], ' '
+				jmp		endBishop
+
+		endBishop:
+			jmp		game_loop
+		notBishop:
+
 		invalidMove:
             ; just loop back up to grab input again, maybe add some output later (TODO:?)
 			jmp		game_loop
