@@ -39,7 +39,10 @@ segment .data
 	move3	db	0
 	move4	db	0
 
-	invalidMoveString	db		"The last move entered was invalid.",13,10,"Press [ENTER] to continue.   ",0
+	; invalid move display
+	line		db		"-------------------------------------------",13,10,0
+	invalidMoveString1	db		"The last move (",0
+	invalidMoveString2	db		") entered was invalid.",13,10,"Press [ENTER] to continue.",13,10,0
 
 segment .bss
 
@@ -111,36 +114,20 @@ asm_main:
 		mov		eax, board
         mov     ebx, eax
 
-		cmp		BYTE[move1], 'A'
-		je		move1A
 		cmp		BYTE[move1], 'a'
 		je		move1A
-		cmp		BYTE[move1], 'B'
-		je		move1B
 		cmp		BYTE[move1], 'b'
 		je		move1B
-		cmp		BYTE[move1], 'C'
-		je		move1C
 		cmp		BYTE[move1], 'c'
 		je		move1C
-		cmp		BYTE[move1], 'D'
-		je		move1D
 		cmp		BYTE[move1], 'd'
 		je		move1D
-		cmp		BYTE[move1], 'E'
-		je		move1E
 		cmp		BYTE[move1], 'e'
 		je		move1E
-		cmp		BYTE[move1], 'F'
-		je		move1F
 		cmp		BYTE[move1], 'f'
 		je		move1F
-		cmp		BYTE[move1], 'G'
-		je		move1G
 		cmp		BYTE[move1], 'g'
 		je		move1G
-		cmp		BYTE[move1], 'H'
-		je		move1H
 		cmp		BYTE[move1], 'h'
 		je		move1H
 		jmp		invalidMove
@@ -217,36 +204,20 @@ asm_main:
 		; logic for finding second piece
         ;mov     ebx, board
 		move3Start:
-		cmp		BYTE[move3], 'A'
-		je		move3A
 		cmp		BYTE[move3], 'a'
 		je		move3A
-		cmp		BYTE[move3], 'B'
-		je		move3B
 		cmp		BYTE[move3], 'b'
 		je		move3B
-		cmp		BYTE[move3], 'C'
-		je		move3C
 		cmp		BYTE[move3], 'c'
 		je		move3C
-		cmp		BYTE[move3], 'D'
-		je		move3D
 		cmp		BYTE[move3], 'd'
 		je		move3D
-		cmp		BYTE[move3], 'E'
-		je		move3E
 		cmp		BYTE[move3], 'e'
 		je		move3E
-		cmp		BYTE[move3], 'F'
-		je		move3F
 		cmp		BYTE[move3], 'f'
 		je		move3F
-		cmp		BYTE[move3], 'G'
-		je		move3G
 		cmp		BYTE[move3], 'g'
 		je		move3G
-		cmp		BYTE[move3], 'H'
-		je		move3H
 		cmp		BYTE[move3], 'h'
 		je		move3H
 		jmp		invalidMove
@@ -1368,8 +1339,28 @@ asm_main:
 		notQueen:
 
 		invalidMove:
-            ; just loop back up to grab input again, maybe add some output later (TODO:?)
-			push	invalidMoveString
+			push	line
+			call	printf
+			add		esp, 4
+			push	invalidMoveString1
+			call	printf
+			add		esp, 4
+			push	DWORD [move1]
+			call	putchar
+			add		esp, 4
+			push	DWORD [move2]
+			call	putchar
+			add		esp, 4
+			push	DWORD [move3]
+			call	putchar
+			add		esp, 4
+			push	DWORD [move4]
+			call	putchar
+			add		esp, 4
+			push	invalidMoveString2
+			call	printf
+			add		esp, 4
+			push	line
 			call	printf
 			add		esp, 4
 			call	getchar
