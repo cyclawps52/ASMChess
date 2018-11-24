@@ -8,4 +8,5 @@ This is Chess. Written in x86 assembly. Yeah, you read that correctly. Why? Beca
 ## Show me!
 
 Sure, here ya go.
+
 ![Chess in Action](MEDIA/overall.gif)
