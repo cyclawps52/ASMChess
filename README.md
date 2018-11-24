@@ -12,4 +12,4 @@ Because it sounded cool and it was for a final.
 # Show me!
 
 Sure, here ya go.
-![Overall Chess](MEDIA/overall.gif)
+<img src="MEDIA/overall.gif" width="500" height="500">
