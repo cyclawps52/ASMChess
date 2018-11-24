@@ -1,8 +1,6 @@
 # ASMChess
 _I thought I was already crazy, then I started this project_
 
-<hr>
-
 ## What is this?
 
 This is Chess. Written in x86 assembly. Yeah, you read that correctly. 
@@ -33,8 +31,6 @@ _As of the current writing, I have no plans to add these features. Maybe in the 
 * Tracking which pieces are taken off the field
 * AI play
 
-<hr>
-
 ## Show me all the things!
 
 Here's the general chess game, including moving each piece around to prove it works.
@@ -46,8 +42,6 @@ This shows a pawn being promoted to a queen when it reaches the end of the board
 _Note: I cheated and placed a pawn closer to the edge of the board. This works fine in normal gameplay, I just didn't want to go through a full sequence to show this._
 
 ![Pawn being Promoted](MEDIA/pawn.gif)
-
-<hr>
 
 ## Questions, comments, ideas?
 
