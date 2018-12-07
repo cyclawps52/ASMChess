@@ -1450,8 +1450,8 @@ asm_main:
 				topLoop_u:
 				cmp		esi, edi
 				je		validPath_k
-					sub		edx, 2
-					sub		esi, 2
+					add		edx, 2
+					add		esi, 2
 					cmp		BYTE[edx], ' '
 					jne		invalidMove
 					jmp		topLoop_u
