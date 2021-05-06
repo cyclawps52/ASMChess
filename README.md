@@ -9,6 +9,8 @@ Why? Because I wanted something cool to do for a final project.
 
 Major props to [my professor](https://github.com/rewzilla) for having a helping hand throughout this process. Without your class, this wouldn't have even been possible for me to do. Thanks for listening to my insane ramblings on Slack and in office hours about this :)
 
+UPDATE FROM THE FUTURE: A few years after I made this, another student in [my professor's](https://github.com/rewzilla) class made an even better version of chess in x86 assembly. I encourage you to [check that out here](https://github.com/RnMor777/x86-Assembly-Chess), I have been de-throned. Well played :)
+
 <hr>
 
 There are a number of features implemented including:
